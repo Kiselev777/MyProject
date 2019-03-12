@@ -1,3 +1,4 @@
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.stream.IntStream;
 
@@ -7,14 +8,27 @@ public class SoBigInteger {
     private static StringBuilder result;
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SoBigInteger that = (SoBigInteger) o;
+        return Objects.equals(number, that.number);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(number);
+    }
+
+    @Override
     public String toString() {
         return number;
     }
 
+
     public static void main(String[] args) {
-        SoBigInteger result = new SoBigInteger("1000");
-        Scanner sc = new Scanner(System.in);
-        System.out.println(result.div(new SoBigInteger("10")));
+        System.out.println(new SoBigInteger("6768326872").com(new SoBigInteger("72")));
+
     }
 
 
@@ -114,14 +128,16 @@ public class SoBigInteger {
     int com(SoBigInteger other) { //Сравнение
         String first = this.number;
         String second = other.number;
-        if (first.length() > second.length())
+        int l1 = first.length();
+        int l2 = second.length();
+        if (l1 < l2)
+            return -1;
+        if (l1 > l2)
             return 1;
         //Возвращает 1,если перво число больше второго
-        if (first.length() < second.length())
-            return -1;
         //Возвращает -1,если первое число меньше первого
-
         for (int i = 0; i < Math.max(first.length(), second.length()); i++) {
+            // Прохожусь по каждому элементу числа,если длины числа равены
             byte byte1 = Byte.parseByte(Character.toString(first.charAt(i)));
             byte byte2 = Byte.parseByte(Character.toString(second.charAt(i)));
             if (byte1 > byte2) {
@@ -130,10 +146,9 @@ public class SoBigInteger {
                 return -1;
             }
         }
-
-        // Прохожусь по каждому элементу числа,если длины числа равены
+        //Возвращает 1,если перво число больше второго
+        //Возвращает -1,если первое число меньше первого
         return 0;
-
         //Возвращает 0,если числа равны.Нет смысла нагружать метод,используя в нём вычитание.
     }
 
@@ -145,6 +160,8 @@ public class SoBigInteger {
         byte n2;
         StringBuilder second = new StringBuilder(other.number);
         StringBuilder first = new StringBuilder(this.number);
+        if (first.charAt(0) == '0' || second.charAt(0) == '0')
+            return new SoBigInteger("0");
         if (new SoBigInteger(first.toString()).com(new SoBigInteger(second.toString())) == -1) {
             StringBuilder newInt = new StringBuilder();
             StringBuilder newInt2 = new StringBuilder();
@@ -155,7 +172,6 @@ public class SoBigInteger {
         }
         first.reverse();
         second.reverse();
-
         for (int i = 0; i < second.length(); i++) {
             result = new StringBuilder();
             counter = 0;
@@ -187,9 +203,12 @@ public class SoBigInteger {
         int divRes = 0;
         String second = other.number;
         String first = this.number;
-        if (new SoBigInteger(first).com(new SoBigInteger(second)) == -1)
+        if (first.charAt(0) == '0' || second.charAt(0) == '0')
             return new SoBigInteger("0");
-        if (new SoBigInteger(first).com(new SoBigInteger(second)) == 0)
+        int res = new SoBigInteger(first).com(new SoBigInteger(second));
+        if (res == -1)
+            return new SoBigInteger("0");
+        if (res == 0)
             return new SoBigInteger("1");
         while (new SoBigInteger(first).com(new SoBigInteger(second)) >= 0) {
             first = (new SoBigInteger(first).sub(new SoBigInteger(second))).toString();
@@ -203,9 +222,10 @@ public class SoBigInteger {
     SoBigInteger mod(SoBigInteger other) {
         String second = other.number;
         String first = this.number;
-        if (new SoBigInteger(first).com(new SoBigInteger(second)) == -1)
+        int res = new SoBigInteger(first).com(new SoBigInteger(second));
+        if (res == -1)
             return new SoBigInteger(first);
-        if (new SoBigInteger(first).com(new SoBigInteger(second)) == 0)
+        if (res == 0)
             return new SoBigInteger("0");
         String newResult = String.valueOf((new SoBigInteger(first).div(new SoBigInteger(second))));
         String newResult2 = String.valueOf(new SoBigInteger(newResult).mul(new SoBigInteger(second)));
