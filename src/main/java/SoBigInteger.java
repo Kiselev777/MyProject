@@ -1,11 +1,11 @@
+import javafx.util.Pair;
+
 import java.util.Objects;
-import java.util.Scanner;
 import java.util.stream.IntStream;
 
 public class SoBigInteger {
     private String number;
-    private static int counter; // счётчик перехода за разряд
-    private static StringBuilder result;
+
 
     @Override
     public boolean equals(Object o) {
@@ -25,28 +25,30 @@ public class SoBigInteger {
         return number;
     }
 
-
-    public static void main(String[] args) {
-        System.out.println(new SoBigInteger("6768326872").com(new SoBigInteger("72")));
-
+    private int compareTo(String s) {
+        if (this.number.length() < s.length())
+            return -1;
+        else if (this.number.length() > s.length())
+            return 1;
+        return 0;
     }
 
 
-    SoBigInteger(String number) { //Конструктор,которпый проверяет строку на то,что все эелемнты строки-числа.
-
-        if (number.matches("\\d*")) {
-            this.number = number;
-        } else throw new NumberFormatException("Не является числом");
+    private static Pair<String, String> changeTo(String f, String s) { //Меняю значение строк местами для умножения и вычитания
+        if (new SoBigInteger(f).com(new SoBigInteger(s)) == -1) {
+            String newInt;
+            String newInt2;
+            newInt = f;
+            newInt2 = s;
+            f = newInt2;
+            s = newInt;
+        }
+        Pair<String, String> p = new Pair<>(f, s);
+        return p;
     }
 
 
-    SoBigInteger sum(SoBigInteger other) {// Сложение
-        result = new StringBuilder();
-        counter = 0;
-        StringBuilder first = new StringBuilder(this.number).reverse();
-        StringBuilder second = new StringBuilder(other.number).reverse();
-        //Переворачиваю строку для удобства сложения,чтобы идти в цикле с 1 индекса
-
+    private static Pair<StringBuilder, StringBuilder> appendZero(StringBuilder first, StringBuilder second) {
         if (first.length() < second.length()) {
             while (first.length() != second.length())
                 first.append("0");
@@ -54,20 +56,42 @@ public class SoBigInteger {
             while (first.length() != second.length())
                 second.append("0");
         }
-        //заполняю нулями строку,которая меньше
+        return new Pair<>(first, second);
+    }
 
+
+    SoBigInteger(String number) { //Конструктор,которпый проверяет строку на то,что все эелемнты строки-числа.
+        number = number.replaceFirst("^0+(?!$)", "");
+        if (number.matches("[1-9]\\d*") || number.equals("0")) {
+            this.number = number;
+        } else throw new NumberFormatException("Не является числом");
+    }
+
+
+    SoBigInteger sum(SoBigInteger other) {// Сложение
+        StringBuilder result = new StringBuilder();
+        final int[] counter = {0};
+        StringBuilder first = new StringBuilder(this.number).reverse();
+        StringBuilder second = new StringBuilder(other.number).reverse();
+        //Переворачиваю строку для удобства сложения,чтобы идти в цикле с 1 индекса
+        Pair<StringBuilder, StringBuilder> pair = appendZero(first, second);
+        first = pair.getKey();
+        second = pair.getValue();
+        //заполняю нулями строку,которая меньше
+        StringBuilder finalFirst = first;
+        StringBuilder finalSecond = second;
         IntStream.range(0, Math.max(first.length(), second.length())).forEach(i -> {
-            byte n1 = Byte.parseByte(Character.toString(first.charAt(i)));
-            byte n2 = Byte.parseByte(Character.toString(second.charAt(i)));
-            if (n1 + n2 + counter < 10) {
-                result.append(n1 + n2 + counter);
-                counter = 0;
+            byte n1 = Byte.parseByte(Character.toString(finalFirst.charAt(i)));
+            byte n2 = Byte.parseByte(Character.toString(finalSecond.charAt(i)));
+            if (n1 + n2 + counter[0] < 10) {
+                result.append(n1 + n2 + counter[0]);
+                counter[0] = 0;
             }
-            if (n1 + n2 + counter >= 10) {
-                result.append(((n1 + n2) % 10 + counter) % 10);
-                counter = 1;
-                if (i == Math.max(first.length(), second.length()) - 1)
-                    result.append(counter);
+            if (n1 + n2 + counter[0] >= 10) {
+                result.append(((n1 + n2) % 10 + counter[0]) % 10);
+                counter[0] = 1;
+                if (i == Math.max(finalFirst.length(), finalSecond.length()) - 1)
+                    result.append(counter[0]);
             }
         });
         return new SoBigInteger(result.reverse().toString());
@@ -75,32 +99,21 @@ public class SoBigInteger {
 
 
     SoBigInteger sub(SoBigInteger other) { //Вычитание
-        result = new StringBuilder();
-        counter = 0;
+        StringBuilder result = new StringBuilder();
+        int counter = 0;
         byte n1;
         byte n2;
         //переворачиваю строку для удобства вычитания
+        Pair<String, String> pair = changeTo(this.number, other.number);
+        this.number = pair.getKey();
+        other.number = pair.getValue();
         StringBuilder second = new StringBuilder(other.number);
         StringBuilder first = new StringBuilder(this.number);
-        if (new SoBigInteger(first.toString()).com(new SoBigInteger(second.toString())) == -1) {
-            StringBuilder newInt = new StringBuilder();
-            StringBuilder newInt2 = new StringBuilder();
-            newInt = first;
-            newInt2 = second;
-            first = newInt2;
-            second = newInt;
-        }
         first.reverse();
         second.reverse();
-        if (first.length() < second.length()) {
-            while (first.length() != second.length())
-                first.append("0");
-        } else if (second.length() < first.length()) {
-            while (first.length() != second.length())
-                second.append("0");
-        }
-
-
+        Pair<StringBuilder, StringBuilder> p = appendZero(first, second);
+        first = p.getKey();
+        second = p.getValue();
         for (int i = 0; i < Math.max(first.length(), second.length()); i++) {
             n1 = (byte) (Byte.parseByte(Character.toString(first.charAt(i))) - counter);
             n2 = Byte.parseByte(Character.toString(second.charAt(i)));
@@ -113,7 +126,6 @@ public class SoBigInteger {
                 counter = 1;
             }
         }
-
         counter = 0;
         result.reverse();
         for (int i = 0; i < result.length(); i++) {
@@ -128,53 +140,43 @@ public class SoBigInteger {
     int com(SoBigInteger other) { //Сравнение
         String first = this.number;
         String second = other.number;
-        int l1 = first.length();
-        int l2 = second.length();
-        if (l1 < l2)
-            return -1;
-        if (l1 > l2)
-            return 1;
+        int res = new SoBigInteger(first).compareTo(second);
         //Возвращает 1,если перво число больше второго
         //Возвращает -1,если первое число меньше первого
-        for (int i = 0; i < Math.max(first.length(), second.length()); i++) {
-            // Прохожусь по каждому элементу числа,если длины числа равены
-            byte byte1 = Byte.parseByte(Character.toString(first.charAt(i)));
-            byte byte2 = Byte.parseByte(Character.toString(second.charAt(i)));
-            if (byte1 > byte2) {
-                return 1;
-            } else if (byte1 < byte2) {
-                return -1;
+        if (res == 0) {
+            for (int i = 0; i < Math.max(first.length(), second.length()); i++) {
+                // Прохожусь по каждому элементу числа,если длины числа равены
+                byte byte1 = Byte.parseByte(Character.toString(first.charAt(i)));
+                byte byte2 = Byte.parseByte(Character.toString(second.charAt(i)));
+                if (byte1 > byte2) {
+                    return 1;
+                } else if (byte1 < byte2) {
+                    return -1;
+                }
             }
+            return res;
         }
-        //Возвращает 1,если перво число больше второго
-        //Возвращает -1,если первое число меньше первого
-        return 0;
-        //Возвращает 0,если числа равны.Нет смысла нагружать метод,используя в нём вычитание.
+        return res;
     }
 
 
     SoBigInteger mul(SoBigInteger other) { //Умножение
         StringBuilder forZero = new StringBuilder();
-        SoBigInteger newResult2 = new SoBigInteger("");
+        SoBigInteger newResult2 = new SoBigInteger("0");
         byte n1;
         byte n2;
+        Pair<String, String> pair = changeTo(this.number, other.number);
+        this.number = pair.getKey();
+        other.number = pair.getValue();
         StringBuilder second = new StringBuilder(other.number);
         StringBuilder first = new StringBuilder(this.number);
         if (first.charAt(0) == '0' || second.charAt(0) == '0')
             return new SoBigInteger("0");
-        if (new SoBigInteger(first.toString()).com(new SoBigInteger(second.toString())) == -1) {
-            StringBuilder newInt = new StringBuilder();
-            StringBuilder newInt2 = new StringBuilder();
-            newInt = first;
-            newInt2 = second;
-            first = newInt2;
-            second = newInt;
-        }
         first.reverse();
         second.reverse();
         for (int i = 0; i < second.length(); i++) {
-            result = new StringBuilder();
-            counter = 0;
+            StringBuilder result = new StringBuilder();
+            int counter = 0;
             n1 = Byte.parseByte(Character.toString(second.charAt(i)));
             for (int j = 0; j < first.length(); j++) {
                 n2 = Byte.parseByte(Character.toString(first.charAt(j)));
@@ -204,14 +206,14 @@ public class SoBigInteger {
         String second = other.number;
         String first = this.number;
         if (first.charAt(0) == '0' || second.charAt(0) == '0')
-            return new SoBigInteger("0");
-        int res = new SoBigInteger(first).com(new SoBigInteger(second));
+            return this;
+        int res = this.com(other);
         if (res == -1)
             return new SoBigInteger("0");
         if (res == 0)
             return new SoBigInteger("1");
-        while (new SoBigInteger(first).com(new SoBigInteger(second)) >= 0) {
-            first = (new SoBigInteger(first).sub(new SoBigInteger(second))).toString();
+        while (this.com(other) >= 0) {
+            this.number = this.sub(other).toString();
             divRes++;
         }
 
@@ -220,16 +222,15 @@ public class SoBigInteger {
 
 
     SoBigInteger mod(SoBigInteger other) {
-        String second = other.number;
         String first = this.number;
-        int res = new SoBigInteger(first).com(new SoBigInteger(second));
+        int res = this.com(other);
         if (res == -1)
-            return new SoBigInteger(first);
+            return this;
         if (res == 0)
             return new SoBigInteger("0");
-        String newResult = String.valueOf((new SoBigInteger(first).div(new SoBigInteger(second))));
-        String newResult2 = String.valueOf(new SoBigInteger(newResult).mul(new SoBigInteger(second)));
-        return new SoBigInteger(first).sub(new SoBigInteger(newResult2));
+        SoBigInteger newResult = this.div(other);
+        SoBigInteger newResult2 = newResult.mul(other);
+        return new SoBigInteger(first).sub(newResult2);
     }
 }
 

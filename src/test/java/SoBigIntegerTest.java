@@ -34,9 +34,9 @@ public class SoBigIntegerTest {
     }
 
     @Test
-    public void com(){
-       assertEquals(0,
-               new SoBigInteger("123").com(new SoBigInteger("123")));
+    public void com() {
+        assertEquals(0,
+                new SoBigInteger("123").com(new SoBigInteger("123")));
         assertEquals(-1,
                 new SoBigInteger("1272468493728927433").com(new SoBigInteger("5430384973097183679813767862846139")));
         assertEquals(1,
@@ -45,6 +45,8 @@ public class SoBigIntegerTest {
                 new SoBigInteger("100000000000000000").com(new SoBigInteger("100000000000000000")));
         assertEquals(-1,
                 new SoBigInteger("1").com(new SoBigInteger("54398390183907298783")));
+        assertEquals(0,
+                (new SoBigInteger("123").com(new SoBigInteger("123"))));
     }
 
     @Test
@@ -83,5 +85,9 @@ public class SoBigIntegerTest {
                 (new SoBigInteger("885555555555555555555").mod(new SoBigInteger("88888888888888888888"))));
         assertEquals((new SoBigInteger("88855552222448789273987932")),
                 (new SoBigInteger("88855552222448789273987932").mod(new SoBigInteger("87412222222222276378637861873687637286823"))));
+        assertEquals((new SoBigInteger("0")),
+                (new SoBigInteger("0").mod(new SoBigInteger("7498279482700000"))));
+        assertEquals((new SoBigInteger("0")),
+                (new SoBigInteger("1234").mod(new SoBigInteger("1234"))));
     }
 }
