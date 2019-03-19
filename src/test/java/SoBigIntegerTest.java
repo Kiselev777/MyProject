@@ -34,19 +34,17 @@ public class SoBigIntegerTest {
     }
 
     @Test
-    public void com() {
+    public void compareTo() {
         assertEquals(0,
-                new SoBigInteger("123").com(new SoBigInteger("123")));
+                new SoBigInteger("123").compareTo(new SoBigInteger("123")));
         assertEquals(-1,
-                new SoBigInteger("1272468493728927433").com(new SoBigInteger("5430384973097183679813767862846139")));
+                new SoBigInteger("1272468493728927433").compareTo(new SoBigInteger("5430384973097183679813767862846139")));
         assertEquals(1,
-                new SoBigInteger("12399999999999444444444449999").com(new SoBigInteger("5413214321313413")));
+                new SoBigInteger("12399999999999444444444449999").compareTo(new SoBigInteger("5413214321313413")));
         assertEquals(0,
-                new SoBigInteger("100000000000000000").com(new SoBigInteger("100000000000000000")));
+                new SoBigInteger("100000000000000000").compareTo(new SoBigInteger("100000000000000000")));
         assertEquals(-1,
-                new SoBigInteger("1").com(new SoBigInteger("54398390183907298783")));
-        assertEquals(0,
-                (new SoBigInteger("123").com(new SoBigInteger("123"))));
+                new SoBigInteger("1").compareTo(new SoBigInteger("54398390183907298783")));
     }
 
     @Test

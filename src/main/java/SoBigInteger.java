@@ -3,7 +3,7 @@ import javafx.util.Pair;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class SoBigInteger {
+public class SoBigInteger implements Comparable<SoBigInteger> {
     private String number;
 
 
@@ -25,25 +25,38 @@ public class SoBigInteger {
         return number;
     }
 
-    private int compareTo(String s) {
-        if (this.number.length() < s.length())
+    @Override
+    public int compareTo(SoBigInteger other) {
+        String first = this.number;
+        String second = other.number;
+        int res = first.length() - second.length();
+        if (res < 0)
             return -1;
-        else if (this.number.length() > s.length())
+        if (res > 0)
             return 1;
-        return 0;
+        for (int i = 0; i < Math.max(first.length(), second.length()); i++) {
+            byte byte1 = Byte.parseByte(Character.toString(first.charAt(i)));
+            byte byte2 = Byte.parseByte(Character.toString(second.charAt(i)));
+            if (byte1 > byte2) {
+                return 1;
+            } else if (byte1 < byte2) {
+                return -1;
+            }
+        }
+        return res;
     }
 
 
-    private static Pair<String, String> changeTo(String f, String s) { //Меняю значение строк местами для умножения и вычитания
-        if (new SoBigInteger(f).com(new SoBigInteger(s)) == -1) {
+    private Pair<String, String> changeTo(SoBigInteger number, SoBigInteger other) { //Меняю значение строк местами для умножения и вычитания
+        if (number.compareTo(other) < 0) {
             String newInt;
             String newInt2;
-            newInt = f;
-            newInt2 = s;
-            f = newInt2;
-            s = newInt;
+            newInt = this.number;
+            newInt2 = other.number;
+            this.number = newInt2;
+            other.number = newInt;
         }
-        Pair<String, String> p = new Pair<>(f, s);
+        Pair<String, String> p = new Pair<>(this.number, other.number);
         return p;
     }
 
@@ -104,19 +117,17 @@ public class SoBigInteger {
         byte n1;
         byte n2;
         //переворачиваю строку для удобства вычитания
-        Pair<String, String> pair = changeTo(this.number, other.number);
-        this.number = pair.getKey();
-        other.number = pair.getValue();
-        StringBuilder second = new StringBuilder(other.number);
-        StringBuilder first = new StringBuilder(this.number);
-        first.reverse();
-        second.reverse();
-        Pair<StringBuilder, StringBuilder> p = appendZero(first, second);
-        first = p.getKey();
-        second = p.getValue();
-        for (int i = 0; i < Math.max(first.length(), second.length()); i++) {
-            n1 = (byte) (Byte.parseByte(Character.toString(first.charAt(i))) - counter);
-            n2 = Byte.parseByte(Character.toString(second.charAt(i)));
+        Pair<String, String> pair = changeTo(this, other);
+        String first = pair.getKey();
+        String second = pair.getValue();
+        StringBuilder f = new StringBuilder(first).reverse();
+        StringBuilder s = new StringBuilder(second).reverse();
+        Pair<StringBuilder, StringBuilder> p = appendZero(f, s);
+        f = p.getKey();
+        s = p.getValue();
+        for (int i = 0; i < Math.max(f.length(), s.length()); i++) {
+            n1 = (byte) (Byte.parseByte(Character.toString(f.charAt(i))) - counter);
+            n2 = Byte.parseByte(Character.toString(s.charAt(i)));
             if (n1 - n2 >= 0) {
                 result.append(n1 - n2);
                 counter = 0;
@@ -137,35 +148,12 @@ public class SoBigInteger {
     }
 
 
-    int com(SoBigInteger other) { //Сравнение
-        String first = this.number;
-        String second = other.number;
-        int res = new SoBigInteger(first).compareTo(second);
-        //Возвращает 1,если перво число больше второго
-        //Возвращает -1,если первое число меньше первого
-        if (res == 0) {
-            for (int i = 0; i < Math.max(first.length(), second.length()); i++) {
-                // Прохожусь по каждому элементу числа,если длины числа равены
-                byte byte1 = Byte.parseByte(Character.toString(first.charAt(i)));
-                byte byte2 = Byte.parseByte(Character.toString(second.charAt(i)));
-                if (byte1 > byte2) {
-                    return 1;
-                } else if (byte1 < byte2) {
-                    return -1;
-                }
-            }
-            return res;
-        }
-        return res;
-    }
-
-
     SoBigInteger mul(SoBigInteger other) { //Умножение
         StringBuilder forZero = new StringBuilder();
         SoBigInteger newResult2 = new SoBigInteger("0");
         byte n1;
         byte n2;
-        Pair<String, String> pair = changeTo(this.number, other.number);
+        Pair<String, String> pair = changeTo(this, other);
         this.number = pair.getKey();
         other.number = pair.getValue();
         StringBuilder second = new StringBuilder(other.number);
@@ -192,7 +180,6 @@ public class SoBigInteger {
                     }
                 }
             }
-            counter = 0;
             SoBigInteger res = new SoBigInteger(new StringBuilder(forZero + result.toString()).reverse().toString());
             newResult2 = newResult2.sum(res);
             forZero.append("0");
@@ -207,12 +194,12 @@ public class SoBigInteger {
         String first = this.number;
         if (first.charAt(0) == '0' || second.charAt(0) == '0')
             return this;
-        int res = this.com(other);
-        if (res == -1)
+        int res = this.compareTo(other);
+        if (res < 0)
             return new SoBigInteger("0");
         if (res == 0)
             return new SoBigInteger("1");
-        while (this.com(other) >= 0) {
+        while (this.compareTo(other) >= 0) {
             this.number = this.sub(other).toString();
             divRes++;
         }
@@ -223,8 +210,8 @@ public class SoBigInteger {
 
     SoBigInteger mod(SoBigInteger other) {
         String first = this.number;
-        int res = this.com(other);
-        if (res == -1)
+        int res = this.compareTo(other);
+        if (res < 0)
             return this;
         if (res == 0)
             return new SoBigInteger("0");
@@ -233,4 +220,6 @@ public class SoBigInteger {
         return new SoBigInteger(first).sub(newResult2);
     }
 }
+
+
 
