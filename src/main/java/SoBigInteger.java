@@ -22,7 +22,7 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
 
     @Override
     public String toString() {
-        return number;
+        return new StringBuilder(number).reverse().toString();
     }
 
     @Override
@@ -34,7 +34,7 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
             return -1;
         if (res > 0)
             return 1;
-        for (int i = 0; i < Math.max(first.length(), second.length()); i++) {
+        for (int i = Math.max(first.length(), second.length())-1 ; i >=0; i--) {
             byte byte1 = Byte.parseByte(Character.toString(first.charAt(i)));
             byte byte2 = Byte.parseByte(Character.toString(second.charAt(i)));
             if (byte1 > byte2) {
@@ -56,8 +56,7 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
             this.number = newInt2;
             other.number = newInt;
         }
-        Pair<String, String> p = new Pair<>(this.number, other.number);
-        return p;
+        return new Pair<>(this.number, other.number);
     }
 
 
@@ -76,7 +75,7 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
     SoBigInteger(String number) { //Конструктор,которпый проверяет строку на то,что все эелемнты строки-числа.
         number = number.replaceFirst("^0+(?!$)", "");
         if (number.matches("[1-9]\\d*") || number.equals("0")) {
-            this.number = number;
+            this.number = new StringBuilder(number).reverse().toString();
         } else throw new NumberFormatException("Не является числом");
     }
 
@@ -84,8 +83,8 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
     SoBigInteger sum(SoBigInteger other) {// Сложение
         StringBuilder result = new StringBuilder();
         final int[] counter = {0};
-        StringBuilder first = new StringBuilder(this.number).reverse();
-        StringBuilder second = new StringBuilder(other.number).reverse();
+        StringBuilder first = new StringBuilder(this.number);
+        StringBuilder second = new StringBuilder(other.number);
         //Переворачиваю строку для удобства сложения,чтобы идти в цикле с 1 индекса
         Pair<StringBuilder, StringBuilder> pair = appendZero(first, second);
         first = pair.getKey();
@@ -120,8 +119,8 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
         Pair<String, String> pair = changeTo(this, other);
         String first = pair.getKey();
         String second = pair.getValue();
-        StringBuilder f = new StringBuilder(first).reverse();
-        StringBuilder s = new StringBuilder(second).reverse();
+        StringBuilder f = new StringBuilder(first);
+        StringBuilder s = new StringBuilder(second);
         Pair<StringBuilder, StringBuilder> p = appendZero(f, s);
         f = p.getKey();
         s = p.getValue();
@@ -158,10 +157,8 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
         other.number = pair.getValue();
         StringBuilder second = new StringBuilder(other.number);
         StringBuilder first = new StringBuilder(this.number);
-        if (first.charAt(0) == '0' || second.charAt(0) == '0')
+        if (first.charAt(first.length()-1) == '0' || second.charAt(second.length()-1) == '0')
             return new SoBigInteger("0");
-        first.reverse();
-        second.reverse();
         for (int i = 0; i < second.length(); i++) {
             StringBuilder result = new StringBuilder();
             int counter = 0;
