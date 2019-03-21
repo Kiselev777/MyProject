@@ -187,17 +187,14 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
 
     SoBigInteger div(SoBigInteger other) {//Деление
         int divRes = 0;
-        String second = other.number;
-        String first = this.number;
-        if (first.charAt(0) == '0' || second.charAt(0) == '0')
-            return this;
         int res = this.compareTo(other);
         if (res < 0)
             return new SoBigInteger("0");
         if (res == 0)
             return new SoBigInteger("1");
-        while (this.compareTo(other) >= 0) {
-            this.number = this.sub(other).toString();
+        SoBigInteger divider=this;
+        while (divider.compareTo(other) >= 0) {
+            divider= divider.sub(other);
             divRes++;
         }
 
