@@ -203,15 +203,12 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
 
 
     SoBigInteger mod(SoBigInteger other) {
-        String first = this.number;
         int res = this.compareTo(other);
         if (res < 0)
             return this;
         if (res == 0)
             return new SoBigInteger("0");
-        SoBigInteger newResult = this.div(other);
-        SoBigInteger newResult2 = newResult.mul(other);
-        return new SoBigInteger(first).sub(newResult2);
+        return other.mul(this.div(other)).sub(this);
     }
 }
 
