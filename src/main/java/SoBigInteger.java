@@ -48,15 +48,7 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
 
 
     private Pair<String, String> changeTo(SoBigInteger number, SoBigInteger other) { //Меняю значение строк местами для умножения и вычитания
-        if (number.compareTo(other) < 0) {
-            String newInt;
-            String newInt2;
-            newInt = this.number;
-            newInt2 = other.number;
-            this.number = newInt2;
-            other.number = newInt;
-        }
-        return new Pair<>(this.number, other.number);
+        return number.compareTo(other) < 0 ? new Pair<>(other.number, number.number) : new Pair<>(number.number, other.number);
     }
 
 
@@ -70,6 +62,7 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
         }
         return new Pair<>(first, second);
     }
+
 
 
     SoBigInteger(String number) { //Конструктор,которпый проверяет строку на то,что все эелемнты строки-числа.
@@ -122,8 +115,6 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
         StringBuilder f = new StringBuilder(first);
         StringBuilder s = new StringBuilder(second);
         Pair<StringBuilder, StringBuilder> p = appendZero(f, s);
-        f = p.getKey();
-        s = p.getValue();
         for (int i = 0; i < Math.max(f.length(), s.length()); i++) {
             n1 = (byte) (Byte.parseByte(Character.toString(f.charAt(i))) - counter);
             n2 = Byte.parseByte(Character.toString(s.charAt(i)));
@@ -153,10 +144,8 @@ public class SoBigInteger implements Comparable<SoBigInteger> {
         byte n1;
         byte n2;
         Pair<String, String> pair = changeTo(this, other);
-        this.number = pair.getKey();
-        other.number = pair.getValue();
-        StringBuilder second = new StringBuilder(other.number);
-        StringBuilder first = new StringBuilder(this.number);
+        StringBuilder second = new StringBuilder(pair.getValue());
+        StringBuilder first = new StringBuilder(pair.getKey());
         if (first.charAt(first.length()-1) == '0' || second.charAt(second.length()-1) == '0')
             return new SoBigInteger("0");
         for (int i = 0; i < second.length(); i++) {

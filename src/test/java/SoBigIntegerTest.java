@@ -59,6 +59,8 @@ public class SoBigIntegerTest {
                 (new SoBigInteger("0").mul(new SoBigInteger("7498279482700000"))));
         assertEquals((new SoBigInteger("749840983")),
                 (new SoBigInteger("1").mul(new SoBigInteger("749840983"))));
+        assertEquals(new SoBigInteger("50"), new SoBigInteger("5").mul(new SoBigInteger("10")));
+
     }
 
     @Test
